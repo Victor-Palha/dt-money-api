@@ -1,5 +1,5 @@
 import { knex } from '../database'
-import { z } from 'zod'
+import { tuple, z } from 'zod'
 import { FastifyInstance } from 'fastify'
 import crypto from 'node:crypto'
 import { validCookie } from '../middlewares/validCookies'
@@ -16,17 +16,32 @@ export async function transactionsRoutes(app: FastifyInstance) {
     const { title, amount, type, description } = createTransactionSchema.parse(
       req.body,
     )
+
     // session_id is a cookie
     let sessionId = req.cookies.session_id
+    console.log(sessionId)
 
     if (!sessionId) {
       sessionId = crypto.randomUUID()
 
-      res.cookie('session_id', sessionId, {
-        path: '/',
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-        secure: false,
+      await knex('transactions').insert({
+        id: crypto.randomUUID(),
+        title,
+        description,
+        type,
+        amount: type === 'credit' ? amount : amount * -1,
+        session_id: sessionId,
       })
+
+      return res
+        .cookie('session_id', sessionId, {
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+          secure: false,
+          httpOnly: true,
+        })
+        .status(201)
+        .send({ message: 'Transaction created' })
     }
 
     await knex('transactions').insert({
