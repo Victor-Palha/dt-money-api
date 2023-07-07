@@ -5,10 +5,13 @@ export const config: Knex.Config = {
   //  nome do banco de dados
   client: env.DATABASE_CLIENT,
   //  tipo de conexão
-  connection: {
-    //  caminho do arquivo
-    filename: env.DATABASE_URL,
-  },
+  connection:
+    env.DATABASE_CLIENT === 'sqlite'
+      ? {
+          //  caminho do arquivo
+          filename: env.DATABASE_URL,
+        }
+      : env.DATABASE_URL,
   //  configurações do banco de dados
   useNullAsDefault: true,
   migrations: {
