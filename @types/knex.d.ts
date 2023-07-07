@@ -6,6 +6,7 @@ type Transactions = {
   title: string
   amount: number
   description: string
+  type: string
   created_at: string
   session_id?: string
 }

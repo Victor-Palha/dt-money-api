@@ -33,6 +33,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
       id: crypto.randomUUID(),
       title,
       description,
+      type,
       amount: type === 'credit' ? amount : amount * -1,
       session_id: sessionId,
     })
@@ -72,6 +73,15 @@ export async function transactionsRoutes(app: FastifyInstance) {
       .sum('amount', { as: 'amount' })
       .first()
 
-    return res.status(200).send({ summary })
+    const outcome = await knex('transactions')
+      .where({ session_id: sessionId, type: 'debit' })
+      .sum('amount', { as: 'amount' })
+      .first()
+    const income = await knex('transactions')
+      .where({ session_id: sessionId, type: 'credit' })
+      .sum('amount', { as: 'amount' })
+      .first()
+
+    return res.status(200).send({ summary, outcome, income })
   })
 }

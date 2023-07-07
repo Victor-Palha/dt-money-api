@@ -61,6 +61,7 @@ describe('Transactions', () => {
       expect.objectContaining({
         title: 'New Transaction',
         amount: 100,
+        type: 'credit',
       }),
     ])
   })
@@ -100,6 +101,7 @@ describe('Transactions', () => {
       expect.objectContaining({
         title: 'New Transaction',
         amount: 100,
+        type: 'credit',
       }),
     )
   })
@@ -138,6 +140,16 @@ describe('Transactions', () => {
     expect(listTransactionsSummary.body.summary).toEqual(
       expect.objectContaining({
         amount: 600,
+      }),
+    )
+    expect(listTransactionsSummary.body.outcome).toEqual(
+      expect.objectContaining({
+        amount: -400,
+      }),
+    )
+    expect(listTransactionsSummary.body.income).toEqual(
+      expect.objectContaining({
+        amount: 1000,
       }),
     )
   })
