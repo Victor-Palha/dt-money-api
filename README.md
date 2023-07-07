@@ -71,6 +71,21 @@ Return:
 {
     "summary": {
         "amount": 4000,
+    },
+    "outcome": {
+        "amount": 1000,
+    },
+    "income": {
+        "amount": 5000,
     }
+}
+```
+
+### Delete `/transactions/:id`
+* This endpoint deletes a transaction registered in the database in the following format:
+Return:
+```json
+{
+    "message": "Transaction deleted"
 }
 ```

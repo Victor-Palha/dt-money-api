@@ -84,4 +84,16 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
     return res.status(200).send({ summary, outcome, income })
   })
+
+  app.delete('/:id', { preHandler: [validCookie] }, async (req, res) => {
+    const deleteTransactionSchema = z.object({
+      id: z.string().uuid(),
+    })
+    const sessionId = req.cookies.session_id
+    const { id } = deleteTransactionSchema.parse(req.params)
+
+    await knex('transactions').where({ session_id: sessionId, id }).del()
+
+    return res.status(200).send({ message: 'Transaction deleted' })
+  })
 }

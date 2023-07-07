@@ -153,4 +153,31 @@ describe('Transactions', () => {
       }),
     )
   })
+
+  test('Delete Transaction', async () => {
+    const responseTransactions = await request(app.server)
+      .post('/transactions')
+      .send({
+        title: 'New Transaction',
+        amount: 100,
+        description: 'New Transaction',
+        type: 'credit',
+      })
+    // Pegando cookie
+    const cookie = responseTransactions.headers['set-cookie']
+    //  Pegando id da transação
+    const listTransactionsResponse = await request(app.server)
+      .get('/transactions')
+      .set('Cookie', cookie)
+    const { id } = listTransactionsResponse.body.transactions[0]
+
+    const deleteTransactionResponse = await request(app.server)
+      .delete(`/transactions/${id}`)
+      .set('Cookie', cookie)
+      .expect(200)
+
+    expect(deleteTransactionResponse.body.message).toEqual(
+      'Transaction deleted',
+    )
+  })
 })
