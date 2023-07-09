@@ -1,9 +1,9 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 
 export async function validCookie(req: FastifyRequest, res: FastifyReply) {
-  const sessionId = req.cookies.session_id
-  // console.log(req.cookies)
-  if (!sessionId) {
+  try {
+    await req.jwtVerify()
+  } catch (error) {
     return res.status(401).send({ error: 'Unauthorized' })
   }
 }

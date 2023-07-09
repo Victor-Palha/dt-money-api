@@ -35,7 +35,10 @@ describe('Transactions', () => {
       // esperando status 201
       .expect(201)
     // verificando resultado esperado
-    expect(newRequest.body).toEqual({ message: 'Transaction created' })
+    expect(newRequest.body).toEqual({
+      message: 'Transaction created',
+      token: expect.any(String),
+    })
   })
 
   // iniciando teste
@@ -49,18 +52,21 @@ describe('Transactions', () => {
         description: 'New Transaction',
         type: 'credit',
       })
-    // Pegando cookie
-    const cookie = responseTransactions.headers['set-cookie']
-    // Pegando todas as transações e passando o cookie
+    // Pegando token
+    const { token } = responseTransactions.body
+    // Pegando todas as transações e passando o token
+
     const listTransactionsResponse = await request(app.server)
       .get('/transactions')
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
+
     // verificando resultado esperado
     expect(listTransactionsResponse.body.transactions).toEqual([
       expect.objectContaining({
         title: 'New Transaction',
         amount: 100,
+        description: 'New Transaction',
         type: 'credit',
       }),
     ])
@@ -78,14 +84,14 @@ describe('Transactions', () => {
         type: 'credit',
       })
 
-    // Pegando cookie
+    // Pegando token
 
-    const cookie = responseTransactions.headers['set-cookie']
+    const { token } = responseTransactions.body
 
     // Pegando todas as transações e passando o cookie
     const listTransactionsResponse = await request(app.server)
       .get('/transactions')
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
 
     // Pegando id da transação
     const { id } = listTransactionsResponse.body.transactions[0]
@@ -93,7 +99,7 @@ describe('Transactions', () => {
     // Pegando transação específica
     const specificTransactionResponse = await request(app.server)
       .get(`/transactions/${id}`)
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     // verificando resultado esperado
@@ -118,22 +124,25 @@ describe('Transactions', () => {
         type: 'credit',
       })
 
-    // Pegando cookie
+    // Pegando token
 
-    const cookie = responseTransactions.headers['set-cookie']
+    const { token } = responseTransactions.body
 
     // Criando outra transação
-    await request(app.server).post('/transactions').set('Cookie', cookie).send({
-      title: 'Debit Transaction',
-      amount: 400,
-      description: 'New Transaction',
-      type: 'debit',
-    })
+    await request(app.server)
+      .post('/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        title: 'Debit Transaction',
+        amount: 400,
+        description: 'New Transaction',
+        type: 'debit',
+      })
 
     // Pegando todas as transações e passando o cookie
     const listTransactionsSummary = await request(app.server)
       .get('/transactions/summary')
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     // verificando resultado esperado
@@ -164,16 +173,16 @@ describe('Transactions', () => {
         type: 'credit',
       })
     // Pegando cookie
-    const cookie = responseTransactions.headers['set-cookie']
+    const { token } = responseTransactions.body
     //  Pegando id da transação
     const listTransactionsResponse = await request(app.server)
       .get('/transactions')
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
     const { id } = listTransactionsResponse.body.transactions[0]
 
     const deleteTransactionResponse = await request(app.server)
       .delete(`/transactions/${id}`)
-      .set('Cookie', cookie)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     expect(deleteTransactionResponse.body.message).toEqual(
