@@ -68,6 +68,20 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return res.status(200).send({ transactions })
   })
 
+  app.get('/query', { preHandler: [validCookie] }, async (req, res) => {
+    const sessionId = req.user.sub
+    const { search } = req.query as string
+
+    const transactions = await knex('transactions')
+      .where((transaction) => {
+        transaction.where('session_id', sessionId)
+      })
+      .andWhere('title', 'like', `%${search}%`)
+      .orderBy('created_at', 'desc')
+
+    return res.status(200).send({ transactions })
+  })
+
   app.get('/:id', { preHandler: [validCookie] }, async (req, res) => {
     const getTransactionSchema = z.object({
       id: z.string().uuid(),
